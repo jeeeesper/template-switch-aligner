@@ -11,7 +11,9 @@ use num_traits::{Float, Zero};
 use crate::{
     a_star_aligner::{
         alignment_geometry::AlignmentCoordinates,
-        template_switch_distance::{AlignmentType, TSMUncertaintyRangeExtensionMode},
+        template_switch_distance::{
+            AlignmentType, TSMUncertaintyRange, TSMUncertaintyRangeExtensionMode,
+        },
     },
     config::TemplateSwitchConfig,
 };
@@ -454,14 +456,11 @@ impl<Cost: AStarCost + From<u64>>
             let alignment_type = alignment.inner_mut()[i].1;
 
             if let super::template_switch_distance::AlignmentType::TemplateSwitchEntrance {
-                mut uncertainty_range,
+                uncertainty_range: None,
                 ..
             } = alignment_type
             {
-                uncertainty_range.min_start = 0;
-                uncertainty_range.max_start = 0;
-                uncertainty_range.min_end = 0;
-                uncertainty_range.max_end = 0;
+                let mut uncertainty_range = TSMUncertaintyRange::new();
 
                 // Keep track of the current cost, which might get less while extending but never increase
                 let mut current_cost = alignment.compute_cost(
@@ -488,6 +487,14 @@ impl<Cost: AStarCost + From<u64>>
                         query_offset,
                         &mut i,
                     ) {
+                        let Some(new_start_left_shift) =
+                            uncertainty_range.start_left_shift.checked_add(1)
+                        else {
+                            trace!(
+                                "Stopping moving TS start backwards because min_start index is exhausted."
+                            );
+                            break;
+                        };
                         let new_cost = min_start_alignment.compute_cost(
                             reference,
                             query,
@@ -503,7 +510,7 @@ impl<Cost: AStarCost + From<u64>>
                             break;
                         }
                         current_cost = new_cost;
-                        uncertainty_range.min_start -= 1;
+                        uncertainty_range.start_left_shift = new_start_left_shift;
                     }
                 }
 
@@ -519,6 +526,14 @@ impl<Cost: AStarCost + From<u64>>
                         query_offset,
                         &mut i,
                     ) {
+                        let Some(new_start_right_shift) =
+                            uncertainty_range.start_right_shift.checked_add(1)
+                        else {
+                            trace!(
+                                "Stopping moving TS start forwards because max_start index is exhausted."
+                            );
+                            break;
+                        };
                         let new_cost = max_start_alignment.compute_cost(
                             reference,
                             query,
@@ -534,7 +549,7 @@ impl<Cost: AStarCost + From<u64>>
                             break;
                         }
                         current_cost = new_cost;
-                        uncertainty_range.max_start += 1;
+                        uncertainty_range.start_right_shift = new_start_right_shift;
                     }
                 }
 
@@ -548,6 +563,14 @@ impl<Cost: AStarCost + From<u64>>
                         query_offset,
                         i,
                     ) {
+                        let Some(new_end_left_shift) =
+                            uncertainty_range.end_left_shift.checked_add(1)
+                        else {
+                            trace!(
+                                "Stopping moving TS end backwards because min_end index is exhausted."
+                            );
+                            break;
+                        };
                         let new_cost = min_end_alignment.compute_cost(
                             reference,
                             query,
@@ -563,7 +586,7 @@ impl<Cost: AStarCost + From<u64>>
                             break;
                         }
                         current_cost = new_cost;
-                        uncertainty_range.min_end -= 1;
+                        uncertainty_range.end_left_shift = new_end_left_shift;
                     }
                 }
 
@@ -577,6 +600,14 @@ impl<Cost: AStarCost + From<u64>>
                         query_offset,
                         i,
                     ) {
+                        let Some(new_end_right_shift) =
+                            uncertainty_range.end_right_shift.checked_add(1)
+                        else {
+                            trace!(
+                                "Stopping moving TS end forwards because max_end index is exhausted."
+                            );
+                            break;
+                        };
                         let new_cost = max_end_alignment.compute_cost(
                             reference,
                             query,
@@ -592,7 +623,7 @@ impl<Cost: AStarCost + From<u64>>
                             break;
                         }
                         current_cost = new_cost;
-                        uncertainty_range.max_end += 1;
+                        uncertainty_range.end_right_shift = new_end_right_shift;
                     }
                 }
 
@@ -603,7 +634,7 @@ impl<Cost: AStarCost + From<u64>>
                 else {
                     unreachable!()
                 };
-                *alignment_uncertainty_range = uncertainty_range;
+                *alignment_uncertainty_range = Some(uncertainty_range);
             }
         }
     }

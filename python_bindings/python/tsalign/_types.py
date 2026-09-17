@@ -37,7 +37,9 @@ class TemplateSwitchEntranceOp:
     descendant: str    # "Reference" or "Query"
     ancestor: str  # "Reference" or "Query"
     direction: str  # "Forward" or "Reverse"
-    uncertainty_range: dict  # {min_start, max_start, min_end, max_end}
+    # {start_left_shift, start_right_shift, end_left_shift, end_right_shift},
+    # or None if the uncertainty range was not computed
+    uncertainty_range: "dict | None"
 
 
 @dataclass

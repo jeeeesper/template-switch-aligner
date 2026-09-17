@@ -16,9 +16,8 @@ use generic_a_star::{
 use indicatif::ProgressBar;
 use itertools::Itertools;
 use lib_tsalign::a_star_aligner::{
-    alignment_geometry::AlignmentRange,
-    alignment_result::AlignmentResult,
-    template_switch_distance::{TSMUncertaintyRange, TemplateSwitchDirection},
+    alignment_geometry::AlignmentRange, alignment_result::AlignmentResult,
+    template_switch_distance::TemplateSwitchDirection,
 };
 use log::{debug, info, trace};
 use rustc_hash::FxHashMapSeed;
@@ -409,7 +408,7 @@ fn actually_align<
                         multiplicity,
                         TsAlignAlignmentType::TemplateSwitchEntrance {
                             first_offset: jump,
-                            uncertainty_range: TSMUncertaintyRange::new_invalid(),
+                            uncertainty_range: None,
                             descendant: ts_kind.descendant.into_tsalign_primary(),
                             ancestor: ts_kind.ancestor.into_tsalign_secondary(),
                             direction: TemplateSwitchDirection::Reverse,

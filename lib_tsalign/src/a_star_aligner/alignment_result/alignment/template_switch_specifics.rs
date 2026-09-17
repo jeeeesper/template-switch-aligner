@@ -944,8 +944,8 @@ mod tests {
         a_star_aligner::{
             alignment_result::alignment::Alignment,
             template_switch_distance::{
-                AlignmentType, TSMUncertaintyRange, TemplateSwitchAncestor,
-                TemplateSwitchDescendant, TemplateSwitchDirection,
+                AlignmentType, TemplateSwitchAncestor, TemplateSwitchDescendant,
+                TemplateSwitchDirection,
             },
         },
         config::{BaseCost, TemplateSwitchConfig},
@@ -1003,7 +1003,7 @@ mod tests {
                 1,
                 AlignmentType::TemplateSwitchEntrance {
                     first_offset: -6,
-                    uncertainty_range: TSMUncertaintyRange::new_invalid(),
+                    uncertainty_range: None,
                     descendant: TemplateSwitchDescendant::Reference,
                     ancestor: TemplateSwitchAncestor::Query,
                     direction: TemplateSwitchDirection::Reverse,
@@ -1024,7 +1024,7 @@ mod tests {
                 1,
                 AlignmentType::TemplateSwitchEntrance {
                     first_offset: -4,
-                    uncertainty_range: TSMUncertaintyRange::new_invalid(),
+                    uncertainty_range: None,
                     descendant: TemplateSwitchDescendant::Reference,
                     ancestor: TemplateSwitchAncestor::Query,
                     direction: TemplateSwitchDirection::Reverse,
@@ -1045,7 +1045,7 @@ mod tests {
                 1,
                 AlignmentType::TemplateSwitchEntrance {
                     first_offset: -2,
-                    uncertainty_range: TSMUncertaintyRange::new_invalid(),
+                    uncertainty_range: None,
                     descendant: TemplateSwitchDescendant::Reference,
                     ancestor: TemplateSwitchAncestor::Query,
                     direction: TemplateSwitchDirection::Reverse,
@@ -1066,7 +1066,7 @@ mod tests {
                 1,
                 AlignmentType::TemplateSwitchEntrance {
                     first_offset: 0,
-                    uncertainty_range: TSMUncertaintyRange::new_invalid(),
+                    uncertainty_range: None,
                     descendant: TemplateSwitchDescendant::Reference,
                     ancestor: TemplateSwitchAncestor::Query,
                     direction: TemplateSwitchDirection::Reverse,
@@ -1088,7 +1088,7 @@ mod tests {
                 1,
                 AlignmentType::TemplateSwitchEntrance {
                     first_offset: 2,
-                    uncertainty_range: TSMUncertaintyRange::new_invalid(),
+                    uncertainty_range: None,
                     descendant: TemplateSwitchDescendant::Reference,
                     ancestor: TemplateSwitchAncestor::Query,
                     direction: TemplateSwitchDirection::Reverse,
@@ -1157,7 +1157,7 @@ mod tests {
                 1,
                 AlignmentType::TemplateSwitchEntrance {
                     first_offset: 10,
-                    uncertainty_range: TSMUncertaintyRange::new_invalid(),
+                    uncertainty_range: None,
                     descendant: TemplateSwitchDescendant::Reference,
                     ancestor: TemplateSwitchAncestor::Query,
                     direction: TemplateSwitchDirection::Reverse,
@@ -1178,7 +1178,7 @@ mod tests {
                 1,
                 AlignmentType::TemplateSwitchEntrance {
                     first_offset: 10,
-                    uncertainty_range: TSMUncertaintyRange::new_invalid(),
+                    uncertainty_range: None,
                     descendant: TemplateSwitchDescendant::Reference,
                     ancestor: TemplateSwitchAncestor::Query,
                     direction: TemplateSwitchDirection::Reverse,
@@ -1199,7 +1199,7 @@ mod tests {
                 1,
                 AlignmentType::TemplateSwitchEntrance {
                     first_offset: 10,
-                    uncertainty_range: TSMUncertaintyRange::new_invalid(),
+                    uncertainty_range: None,
                     descendant: TemplateSwitchDescendant::Reference,
                     ancestor: TemplateSwitchAncestor::Query,
                     direction: TemplateSwitchDirection::Reverse,
@@ -1220,7 +1220,7 @@ mod tests {
                 1,
                 AlignmentType::TemplateSwitchEntrance {
                     first_offset: 10,
-                    uncertainty_range: TSMUncertaintyRange::new_invalid(),
+                    uncertainty_range: None,
                     descendant: TemplateSwitchDescendant::Reference,
                     ancestor: TemplateSwitchAncestor::Query,
                     direction: TemplateSwitchDirection::Reverse,
@@ -1242,7 +1242,7 @@ mod tests {
                 1,
                 AlignmentType::TemplateSwitchEntrance {
                     first_offset: 10,
-                    uncertainty_range: TSMUncertaintyRange::new_invalid(),
+                    uncertainty_range: None,
                     descendant: TemplateSwitchDescendant::Reference,
                     ancestor: TemplateSwitchAncestor::Query,
                     direction: TemplateSwitchDirection::Reverse,
