@@ -48,7 +48,7 @@ pub enum AlignmentType {
     /// A template switch entrance.
     TemplateSwitchEntrance {
         first_offset: isize,
-        uncertainty_range: TSMUncertaintyRange,
+        uncertainty_range: Option<TSMUncertaintyRange>,
         descendant: TemplateSwitchDescendant,
         ancestor: TemplateSwitchAncestor,
         direction: TemplateSwitchDirection,

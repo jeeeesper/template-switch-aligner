@@ -162,7 +162,7 @@ impl TsSourceArrangement {
                         ancestor,
                         direction,
                         first_offset,
-                        uncertainty_range,
+                        uncertainty_range.unwrap_or_default(),
                         uncertainty_range_mode,
                         &mut alignment,
                         &mut current_reference_index,
@@ -382,7 +382,7 @@ impl TsSourceArrangement {
             match ts_descendant {
                 TemplateSwitchDescendant::Reference => sp1_reference,
                 TemplateSwitchDescendant::Query => sp1_query,
-            } + usize::try_from(uncertainty_range.max_start).unwrap();
+            } + usize::from(uncertainty_range.start_right_shift);
         let descendant_minimal_uncertainty_range_end =
             match ts_descendant {
                 TemplateSwitchDescendant::Reference => {
@@ -391,7 +391,7 @@ impl TsSourceArrangement {
                 TemplateSwitchDescendant::Query => {
                     self.query_arrangement_to_arrangement_char_column(*current_descendant_index)
                 }
-            } - usize::try_from(-uncertainty_range.min_end).unwrap();
+            } - usize::from(uncertainty_range.end_left_shift);
         let (descendant_minimal_uncertainty_range_start, descendant_minimal_uncertainty_range_end) =
             match ts_descendant {
                 TemplateSwitchDescendant::Reference => (
@@ -502,7 +502,7 @@ impl TsSourceArrangement {
                 .take(usize::from(sp1_descendant))
                 .rev()
                 .filter(|c| c.is_char())
-                .take(usize::try_from(-uncertainty_range.min_start).unwrap())
+                .take(usize::from(uncertainty_range.start_left_shift))
                 .for_each(|c| c.make_optional(true));
 
             // Mark characters right of SP4 as optional.
@@ -510,7 +510,7 @@ impl TsSourceArrangement {
                 .iter_values_mut()
                 .skip(usize::from(sp4_descendant))
                 .filter(|c| c.is_char())
-                .take(usize::try_from(uncertainty_range.max_end).unwrap())
+                .take(usize::from(uncertainty_range.end_right_shift))
                 .for_each(|c| c.make_optional(true));
 
             // Mark characters right of SP1 as optional.
@@ -518,7 +518,7 @@ impl TsSourceArrangement {
                 .iter_values_mut()
                 .skip(usize::from(sp1_descendant))
                 .filter(|c| c.is_char())
-                .take(usize::try_from(uncertainty_range.max_start).unwrap())
+                .take(usize::from(uncertainty_range.start_right_shift))
                 .for_each(|c| c.make_optional(false));
 
             // Mark characters left of SP4 as optional.
@@ -527,7 +527,7 @@ impl TsSourceArrangement {
                 .take(usize::from(sp4_descendant))
                 .rev()
                 .filter(|c| c.is_char())
-                .take(usize::try_from(-uncertainty_range.min_end).unwrap())
+                .take(usize::from(uncertainty_range.end_left_shift))
                 .for_each(|c| c.make_optional(false));
         }
 

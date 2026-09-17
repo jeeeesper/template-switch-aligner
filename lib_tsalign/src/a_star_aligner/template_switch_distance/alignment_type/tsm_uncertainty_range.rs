@@ -16,41 +16,29 @@ pub enum TSMUncertaintyRangeExtensionMode {
 /// This can be without increasing cost, or without introducing mismatches, or possibly other criteria in the future.
 ///
 /// The range may not be maximal, but is required to be correct.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Ord, PartialOrd, Hash)]
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, Ord, PartialOrd, Hash)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct TSMUncertaintyRange {
     /// How much the start of the TS can be shifted to the left.
-    ///
-    /// This number must not be positive.
-    pub min_start: i8,
+    pub start_left_shift: u16,
 
     /// How much the start of the TS can be shifted to the right.
-    ///
-    /// This number must not be negative.
-    pub max_start: i8,
+    pub start_right_shift: u16,
 
     /// How much the end of the TS can be shifted to the left.
-    ///
-    /// This number must not be positive.
-    pub min_end: i8,
+    pub end_left_shift: u16,
 
     /// How much the end of the TS can be shifted to the right.
-    ///
-    /// This number must not be negative.
-    pub max_end: i8,
+    pub end_right_shift: u16,
 }
 
 impl TSMUncertaintyRange {
-    pub const fn new_invalid() -> Self {
+    pub const fn new() -> Self {
         Self {
-            min_start: 1,
-            max_start: -1,
-            min_end: 1,
-            max_end: -1,
+            start_left_shift: 0,
+            start_right_shift: 0,
+            end_left_shift: 0,
+            end_right_shift: 0,
         }
-    }
-
-    pub fn is_valid(&self) -> bool {
-        self.min_start <= 0 && self.max_start >= 0 && self.min_end <= 0 && self.max_end >= 0
     }
 }

@@ -369,7 +369,7 @@ impl TsInnerArrangement {
                     let mut arrangement_column =
                         last_initial_blank.map(|i| i + 1usize).unwrap_or(0.into());
                     let mut source_column = first_source_column;
-                    for _ in 0..ts.uncertainty_range.max_end {
+                    for _ in 0..ts.uncertainty_range.end_right_shift {
                         arrangement_column -= 1;
                         source_column += 1;
 
@@ -384,7 +384,7 @@ impl TsInnerArrangement {
                     // Add suffix to extend to min_start.
                     let mut arrangement_column = first_final_blank - 1usize;
                     let mut source_column = last_source_column;
-                    for _ in 0..-ts.uncertainty_range.min_start {
+                    for _ in 0..ts.uncertainty_range.start_left_shift {
                         arrangement_column += 1;
                         source_column -= 1;
 
@@ -398,7 +398,7 @@ impl TsInnerArrangement {
 
                     // Convert prefix to extend to min_end.
                     let mut arrangement_column = first_non_blank;
-                    for _ in 0..-ts.uncertainty_range.min_end {
+                    for _ in 0..ts.uncertainty_range.end_left_shift {
                         while !inner[arrangement_column].is_source_char() {
                             arrangement_column += 1;
                         }
@@ -409,7 +409,7 @@ impl TsInnerArrangement {
 
                     // Convert suffix to extend to max_start.
                     let mut arrangement_column = first_final_blank;
-                    for _ in 0..ts.uncertainty_range.max_start {
+                    for _ in 0..ts.uncertainty_range.start_right_shift {
                         arrangement_column -= 1;
 
                         while !inner[arrangement_column].is_source_char() {

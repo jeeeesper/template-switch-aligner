@@ -25,10 +25,15 @@ impl Display for AlignmentType {
                 direction,
                 uncertainty_range,
                 first_offset,
-            } => write!(
-                f,
-                "[TS{descendant}{ancestor}{direction}:{uncertainty_range}:{first_offset}:"
-            ),
+            } => {
+                write!(f, "[TS{descendant}{ancestor}{direction}:")?;
+                if let Some(uncertainty_range) = uncertainty_range {
+                    write!(f, "{uncertainty_range}")?;
+                } else {
+                    write!(f, "[-]:[-]")?;
+                }
+                write!(f, ":{first_offset}:")
+            }
             Self::TemplateSwitchExit {
                 anti_descendant_gap,
             } => write!(f, ":{anti_descendant_gap}]"),
@@ -83,17 +88,18 @@ impl Display for TemplateSwitchDirection {
 
 impl Display for TSMUncertaintyRange {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
-        if self.is_valid() {
-            let Self {
-                min_start,
-                max_start,
-                min_end,
-                max_end,
-            } = self;
-            write!(f, "[{min_start},{max_start}]:[{min_end},{max_end}]")
-        } else {
-            write!(f, "[-]:[-]")
-        }
+        let Self {
+            start_left_shift,
+            start_right_shift,
+            end_left_shift,
+            end_right_shift,
+        } = self;
+        let start_left_shift = -i32::from(*start_left_shift);
+        let end_left_shift = -i32::from(*end_left_shift);
+        write!(
+            f,
+            "[{start_left_shift},{start_right_shift}]:[{end_left_shift},{end_right_shift}]"
+        )
     }
 }
 
