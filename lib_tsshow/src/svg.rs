@@ -1,8 +1,14 @@
-use std::{collections::HashMap, io::Write};
+use std::{
+    collections::{BTreeSet, HashMap},
+    io::Write,
+};
 
 use arrows::{Arrow, ArrowEndpointDirection, add_arrow_defs};
 use clap::ValueEnum;
-use font::{CharacterData, sans_serif_mono, svg_string, typewriter};
+use font::{
+    CharacterData, DEFAULT_COLOR, Font, embed_fonts, fonts, printable_characters, sans_serif,
+    sans_serif_mono, svg_phrase, svg_string, typewriter,
+};
 use indexed_str::IndexedStr;
 use lib_tsalign::{
     a_star_aligner::{
@@ -55,6 +61,7 @@ const OPTIONAL_INNER_DECREASING_COLOR: &str = "#0000FF";
 const OPTIONAL_SOURCE_INCREASING_COLOR: &str = "#B14DB1";
 const OPTIONAL_SOURCE_DECREASING_COLOR: &str = "#0000FF66";
 const COMPLEMENT_SOURCE_HIDDEN_COLOR: &str = "grey";
+const LABEL_COLOR: &str = "#555555";
 const TS_RUNNING_NUMBER: &str = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
 struct SvgLocation {
@@ -109,6 +116,18 @@ pub fn create_ts_svg(
     let query = &statistics.sequences.query;
     let reference_c: String = statistics.sequences.reference_rc.chars().rev().collect();
     let query_c: String = statistics.sequences.query_rc.chars().rev().collect();
+
+    // The fonts are embedded into the SVG, reduced to the characters that may be rendered.
+    let mut characters: BTreeSet<char> = printable_characters().collect();
+    characters.extend(
+        reference
+            .chars()
+            .chain(query.chars())
+            .chain(reference_c.chars())
+            .chain(query_c.chars())
+            .chain(statistics.sequences.reference_name.chars())
+            .chain(statistics.sequences.query_name.chars()),
+    );
 
     debug!("Computing TS arrangement");
     let mut ts_arrangement = TsArrangement::new(
@@ -447,8 +466,9 @@ pub fn create_ts_svg(
         );
         ts_label_group_width = ts_label_group_width
             .max(label.chars().count() as f32 * sans_serif_mono::FONT.character_width);
-        label_group = label_group.add(svg_string(
-            label.chars().map(render_label_char),
+        label_group = label_group.add(svg_phrase(
+            &label,
+            LABEL_COLOR,
             &SvgLocation { x: 0.0, y },
             &sans_serif_mono::FONT,
         ));
@@ -470,8 +490,9 @@ pub fn create_ts_svg(
     let label = "Reference complement:";
     ts_label_group_width = ts_label_group_width
         .max(label.chars().count() as f32 * sans_serif_mono::FONT.character_width);
-    label_group = label_group.add(svg_string(
-        label.chars().map(render_label_char),
+    label_group = label_group.add(svg_phrase(
+        label,
+        LABEL_COLOR,
         &SvgLocation { x: 0.0, y },
         &sans_serif_mono::FONT,
     ));
@@ -504,8 +525,9 @@ pub fn create_ts_svg(
         );
         ts_label_group_width = ts_label_group_width
             .max(label.chars().count() as f32 * sans_serif_mono::FONT.character_width);
-        label_group = label_group.add(svg_string(
-            label.chars().map(render_label_char),
+        label_group = label_group.add(svg_phrase(
+            &label,
+            LABEL_COLOR,
             &SvgLocation { x: 0.0, y },
             &sans_serif_mono::FONT,
         ));
@@ -527,8 +549,9 @@ pub fn create_ts_svg(
     let label = "Reference:";
     ts_label_group_width = ts_label_group_width
         .max(label.chars().count() as f32 * sans_serif_mono::FONT.character_width);
-    label_group = label_group.add(svg_string(
-        label.chars().map(render_label_char),
+    label_group = label_group.add(svg_phrase(
+        label,
+        LABEL_COLOR,
         &SvgLocation { x: 0.0, y },
         &sans_serif_mono::FONT,
     ));
@@ -549,8 +572,9 @@ pub fn create_ts_svg(
     let label = "Query:";
     ts_label_group_width = ts_label_group_width
         .max(label.chars().count() as f32 * sans_serif_mono::FONT.character_width);
-    label_group = label_group.add(svg_string(
-        label.chars().map(render_label_char),
+    label_group = label_group.add(svg_phrase(
+        label,
+        LABEL_COLOR,
         &SvgLocation { x: 0.0, y },
         &sans_serif_mono::FONT,
     ));
@@ -580,8 +604,9 @@ pub fn create_ts_svg(
         );
         ts_label_group_width = ts_label_group_width
             .max(label.chars().count() as f32 * sans_serif_mono::FONT.character_width);
-        label_group = label_group.add(svg_string(
-            label.chars().map(render_label_char),
+        label_group = label_group.add(svg_phrase(
+            &label,
+            LABEL_COLOR,
             &SvgLocation { x: 0.0, y },
             &sans_serif_mono::FONT,
         ));
@@ -603,8 +628,9 @@ pub fn create_ts_svg(
     let label = "Query complement:";
     ts_label_group_width = ts_label_group_width
         .max(label.chars().count() as f32 * sans_serif_mono::FONT.character_width);
-    label_group = label_group.add(svg_string(
-        label.chars().map(render_label_char),
+    label_group = label_group.add(svg_phrase(
+        label,
+        LABEL_COLOR,
         &SvgLocation { x: 0.0, y },
         &sans_serif_mono::FONT,
     ));
@@ -634,8 +660,9 @@ pub fn create_ts_svg(
         );
         ts_label_group_width = ts_label_group_width
             .max(label.chars().count() as f32 * sans_serif_mono::FONT.character_width);
-        label_group = label_group.add(svg_string(
-            label.chars().map(render_label_char),
+        label_group = label_group.add(svg_phrase(
+            &label,
+            LABEL_COLOR,
             &SvgLocation { x: 0.0, y },
             &sans_serif_mono::FONT,
         ));
@@ -694,8 +721,9 @@ pub fn create_ts_svg(
         let label = "Reference:";
         no_ts_label_group_width = no_ts_label_group_width
             .max(label.chars().count() as f32 * sans_serif_mono::FONT.character_width);
-        no_ts_label_group = no_ts_label_group.add(svg_string(
-            label.chars().map(render_label_char),
+        no_ts_label_group = no_ts_label_group.add(svg_phrase(
+            label,
+            LABEL_COLOR,
             &SvgLocation { x: 0.0, y },
             &sans_serif_mono::FONT,
         ));
@@ -712,8 +740,9 @@ pub fn create_ts_svg(
         let label = "Query:";
         no_ts_label_group_width = no_ts_label_group_width
             .max(label.chars().count() as f32 * sans_serif_mono::FONT.character_width);
-        no_ts_label_group = no_ts_label_group.add(svg_string(
-            label.chars().map(render_label_char),
+        no_ts_label_group = no_ts_label_group.add(svg_phrase(
+            label,
+            LABEL_COLOR,
             &SvgLocation { x: 0.0, y },
             &sans_serif_mono::FONT,
         ));
@@ -789,6 +818,7 @@ pub fn create_ts_svg(
 
     debug!("Creating SVG root");
     let mut svg = Document::new();
+    svg = svg.add(embed_fonts(fonts(), &characters)?);
     svg = add_arrow_defs(svg);
     svg = svg.add(Circle::new().set("r", 1e5).set("fill", "white"));
     svg = svg.set(
@@ -956,10 +986,6 @@ fn render_inner_char(
     }
 }
 
-fn render_label_char(c: char) -> Character<CharacterData> {
-    Character::new_char(c, CharacterData::new_colored("#555555"))
-}
-
 enum OptionalChar {
     NotOptional,
     SourceIncreasing,
@@ -1010,10 +1036,9 @@ fn legend(
     let mut result = Group::new();
 
     let headline = "Legend:";
-    result = result.add(svg_string(
-        headline
-            .chars()
-            .map(Character::<CharacterData>::new_char_with_default),
+    result = result.add(svg_phrase(
+        headline,
+        DEFAULT_COLOR,
         &SvgLocation { x: 0.0, y: 0.0 },
         &sans_serif_mono::FONT,
     ));
@@ -1026,10 +1051,9 @@ fn legend(
 
     // Labels.
     let reference_label = "Reference";
-    result = result.add(svg_string(
-        reference_label
-            .chars()
-            .map(Character::<CharacterData>::new_char_with_default),
+    result = result.add(svg_phrase(
+        reference_label,
+        DEFAULT_COLOR,
         &SvgLocation { x: 0.0, y },
         &sans_serif_mono::FONT,
     ));
@@ -1040,10 +1064,9 @@ fn legend(
         .max(sans_serif_mono::FONT.character_height);
 
     let query_label = "Query";
-    result = result.add(svg_string(
-        query_label
-            .chars()
-            .map(Character::<CharacterData>::new_char_with_default),
+    result = result.add(svg_phrase(
+        query_label,
+        DEFAULT_COLOR,
         &SvgLocation { x: 0.0, y },
         &sans_serif_mono::FONT,
     ));
@@ -1054,10 +1077,9 @@ fn legend(
         .max(sans_serif_mono::FONT.character_height);
 
     let copy_label = "GREEN CHARACTERS";
-    result = result.add(svg_string(
-        copy_label
-            .chars()
-            .map(|c| Character::new_char(c, CharacterData::new_colored(COPY_COLORS[0]))),
+    result = result.add(svg_phrase(
+        copy_label,
+        COPY_COLORS[0],
         &SvgLocation { x: 0.0, y },
         &typewriter::FONT,
     ));
@@ -1069,13 +1091,9 @@ fn legend(
 
     if config.uncertainty_range_mode != UncertaintyRangeMode::None {
         let uncertainty_increasing_label = "PURPLE-ISH CHARACTERS";
-        result = result.add(svg_string(
-            uncertainty_increasing_label.chars().map(|c| {
-                Character::new_char(
-                    c,
-                    CharacterData::new_colored(OPTIONAL_INNER_INCREASING_COLOR),
-                )
-            }),
+        result = result.add(svg_phrase(
+            uncertainty_increasing_label,
+            OPTIONAL_INNER_INCREASING_COLOR,
             &SvgLocation { x: 0.0, y },
             &typewriter::FONT,
         ));
@@ -1087,13 +1105,9 @@ fn legend(
             .max(sans_serif_mono::FONT.character_height);
 
         let uncertainty_decreasing_label = "BLUE CHARACTERS";
-        result = result.add(svg_string(
-            uncertainty_decreasing_label.chars().map(|c| {
-                Character::new_char(
-                    c,
-                    CharacterData::new_colored(OPTIONAL_INNER_DECREASING_COLOR),
-                )
-            }),
+        result = result.add(svg_phrase(
+            uncertainty_decreasing_label,
+            OPTIONAL_INNER_DECREASING_COLOR,
             &SvgLocation { x: 0.0, y },
             &typewriter::FONT,
         ));
@@ -1121,10 +1135,9 @@ fn legend(
         .max(sans_serif_mono::FONT.character_height);
 
     let copy_explanation = "Repeated characters due to a TS with SP4 < SP1";
-    result = result.add(svg_string(
-        copy_explanation
-            .chars()
-            .map(Character::<CharacterData>::new_char_with_default),
+    result = result.add(svg_phrase(
+        copy_explanation,
+        DEFAULT_COLOR,
         &SvgLocation { x: label_width, y },
         &sans_serif_mono::FONT,
     ));
@@ -1136,10 +1149,9 @@ fn legend(
 
     if config.uncertainty_range_mode != UncertaintyRangeMode::None {
         let uncertainty_increasing_explanation = "Uncertainty range of the TSM, increasing part";
-        result = result.add(svg_string(
-            uncertainty_increasing_explanation
-                .chars()
-                .map(Character::<CharacterData>::new_char_with_default),
+        result = result.add(svg_phrase(
+            uncertainty_increasing_explanation,
+            DEFAULT_COLOR,
             &SvgLocation { x: label_width, y },
             &sans_serif_mono::FONT,
         ));
@@ -1152,10 +1164,9 @@ fn legend(
             .max(sans_serif_mono::FONT.character_height);
 
         let uncertainty_decreasing_explanation = "Uncertainty range of the TSM, decreasing part";
-        result = result.add(svg_string(
-            uncertainty_decreasing_explanation
-                .chars()
-                .map(Character::<CharacterData>::new_char_with_default),
+        result = result.add(svg_phrase(
+            uncertainty_decreasing_explanation,
+            DEFAULT_COLOR,
             &SvgLocation { x: label_width, y },
             &sans_serif_mono::FONT,
         ));
@@ -1176,15 +1187,44 @@ fn legend(
 }
 
 pub fn create_error_svg(output: impl Write, error: Error) -> Result<()> {
+    let error = error.to_string();
+    let mut characters: BTreeSet<char> = printable_characters().collect();
+    characters.extend(error.chars());
+
     let svg = Document::new()
         .set("viewBox", (0, 0, 1920, 1080))
+        .add(embed_fonts([&*sans_serif::FONT], &characters)?)
         .add(Circle::new().set("r", 1e5).set("fill", "white"))
         .add(
-            Text::new(error.to_string())
-                .set("transform", SvgLocation { x: 10.0, y: 10.0 }.as_transform())
-                .set("font", "Sans serif"),
+            Text::new(error)
+                .set("transform", SvgLocation { x: 10.0, y: 26.0 }.as_transform())
+                .set("font-family", sans_serif::FONT.family())
+                .set("font-size", 20),
         );
 
     svg::write(output, &svg)?;
     Ok(())
+}
+
+/// Returns the font files embedded into the SVGs created by this module.
+///
+/// Renderers that ignore embedded fonts need to be given these font files separately.
+pub fn embedded_font_files() -> impl Iterator<Item = &'static [u8]> {
+    fonts().map(Font::file)
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::{error::Error, svg::create_error_svg};
+
+    /// The error SVG must embed the font it uses.
+    #[test]
+    fn test_create_error_svg_embeds_its_font() {
+        let mut svg = Vec::new();
+        create_error_svg(&mut svg, Error::ForwardTsNotSupported).unwrap();
+        let svg = String::from_utf8(svg).unwrap();
+
+        assert!(svg.contains("@font-face"));
+        assert!(svg.contains("Forward TSes are not yet supported."));
+    }
 }

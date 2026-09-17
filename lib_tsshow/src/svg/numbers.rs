@@ -2,15 +2,11 @@ use std::fmt::Display;
 
 use svg::node::element::{Group, Path};
 
-use crate::{
-    plain_text::mutlipair_alignment_renderer::{Character, NoCharacterData},
-    svg::font::sans_serif_mono,
-    ts_arrangement::index_types::ArrangementColumn,
-};
+use crate::{svg::font::sans_serif_mono, ts_arrangement::index_types::ArrangementColumn};
 
 use super::{
     SvgLocation,
-    font::{svg_string, typewriter},
+    font::{DEFAULT_COLOR, svg_phrase, typewriter},
 };
 
 const BORDER_STROKE_WIDTH: f32 = 0.2;
@@ -83,18 +79,15 @@ impl<Row> Number<Row> {
                     .set("stroke-width", BORDER_STROKE_WIDTH)
                     .set("d", border_d),
             )
-            .add(
-                Group::new().add(svg_string(
-                    self.number
-                        .chars()
-                        .map(|c| Character::new_char(c, NoCharacterData)),
-                    &SvgLocation {
-                        x: 0.0,
-                        y: sans_serif_mono::FONT.character_height * -0.12,
-                    },
-                    &sans_serif_mono::FONT,
-                )),
-            )
+            .add(Group::new().add(svg_phrase(
+                &self.number,
+                DEFAULT_COLOR,
+                &SvgLocation {
+                    x: 0.0,
+                    y: sans_serif_mono::FONT.character_height * -0.12,
+                },
+                &sans_serif_mono::FONT,
+            )))
     }
 
     pub fn width(&self) -> f32 {
