@@ -18,4 +18,7 @@ pub enum Error {
 
     #[error("Forward TSes are not yet supported.")]
     ForwardTsNotSupported,
+
+    #[error("Error reducing the font {0} to the characters used in the SVG: {1}")]
+    FontSubsetting(String, String),
 }

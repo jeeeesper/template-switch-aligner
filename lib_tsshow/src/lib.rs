@@ -9,6 +9,11 @@ pub fn svg_to_png(svg_in: &[u8], zoom: f32) -> Vec<u8> {
     log::info!("Converting SVG to PNG");
 
     let mut options = Options::default();
+    // resvg ignores the fonts embedded into the SVG,
+    // hence they are loaded from the same font files that were embedded.
+    for font_file in svg::embedded_font_files() {
+        options.fontdb_mut().load_font_data(font_file.to_vec());
+    }
     options.fontdb_mut().load_system_fonts();
     let svg = resvg::usvg::Tree::from_data(svg_in, &options).unwrap();
 
